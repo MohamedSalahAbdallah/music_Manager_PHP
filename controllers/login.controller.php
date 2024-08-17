@@ -1,9 +1,19 @@
 <?php
 require_once("models/user.model.php");
+$errors = [];
 
-$user = new user();
+if (isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $user = new user();
 
-$user->registerUser("mo", "mo2000", "m@maaaaaaaaaaaaaaaaaaaaaaaaaaa.com", "123456789");
-
-
-var_dump($user->searchInDataBase($user->id));
+    $user->userLogin($email, $password);
+    if ($user->email) {
+        # code...
+        session_start();
+        $_SESSION['email'] = $email;
+        header("Location: /profile.php");
+    } else {
+        $errors["invalid"] = "email or password is incorrect";
+    }
+}

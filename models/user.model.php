@@ -42,7 +42,8 @@ class user extends storageManger
      */
     public function addToDataBase($data, $fileName = "users.json")
     {
-        return parent::addToDataBase($data, $fileName);
+        // Call the parent addToDataBase method
+        parent::addToDataBase($data, $fileName);
     }
 
     /**
@@ -53,6 +54,7 @@ class user extends storageManger
      */
     public function getFromDataBase($fileName = "users.json")
     {
+        // Call the parent getFromDataBase method
         return parent::getFromDataBase($fileName);
     }
 
@@ -66,7 +68,8 @@ class user extends storageManger
      */
     public function updateInDataBase($data, $id, $fileName = "users.json")
     {
-        return parent::updateInDataBase($data, $id, $fileName);
+        // Call the parent updateInDataBase method
+        parent::updateInDataBase($data, $id, $fileName);
     }
 
     /**
@@ -78,7 +81,8 @@ class user extends storageManger
      */
     public function deleteFromDataBase($id, $fileName = "users.json")
     {
-        return parent::deleteFromDataBase($id, $fileName);
+        // Call the parent deleteFromDataBase method
+        parent::deleteFromDataBase($id, $fileName);
     }
 
     /**
@@ -88,9 +92,20 @@ class user extends storageManger
      * @param string $fileName The name of the JSON file. Default is "users.json".
      * @return mixed The user with the given ID or an error message.
      */
-    public function searchInDataBase($id, $fileName = "users.json")
+    public function searchInDataBase($fieldName, $value, $fileName = "users.json")
     {
-        return parent::searchInDataBase($id, $fileName);
+        // Call the parent searchInDataBase method
+        $values = parent::searchInDataBase($fieldName, $value, $fileName);
+        if (count($values) > 0) {
+            // Set the class properties
+            $this->id = $values['id'];
+            $this->name = $values['name'];
+            $this->userName = $values['userName'];
+            $this->email = $values['email'];
+            $this->password = $values['password'];
+        } else {
+            return "No user found";
+        }
     }
 
     /**
@@ -102,9 +117,12 @@ class user extends storageManger
      */
     public function userLogin($email, $password)
     {
+        // Get all users from the users.json file
         $users = $this->getFromDataBase("users.json");
         foreach ($users as $user) {
+            // Check if the email and password match
             if ($user['email'] == $email && $user['password'] == $password) {
+                // Set the class properties
                 $this->id = $user['id'];
                 $this->name = $user['name'];
                 $this->userName = $user['userName'];
@@ -125,22 +143,29 @@ class user extends storageManger
      * @param string $password The password of the user.
      * @return bool True if the user is registered successfully, false otherwise.
      */
-    public function registerUser($name, $userName, $email, $password)
+    public function registerUser($name, $userName, $email, $password, $confirmPassword)
     {
+        // Get all users from the users.json file
         $users = (array)$this->getFromDataBase("users.json");
-        $id = count($users) + 1;
-        $user["id"] = $id;
-        $user["name"] = $name;
-        $user["userName"] = $userName;
-        $user["email"] = $email;
-        $user["password"] = $password;
-        $this->addToDataBase($user, "users.json");
-        $this->id = $id;
-        $this->name = $name;
-        $this->userName = $userName;
-        $this->email = $email;
-        $this->password = $password;
-
-        return true;
+        if (isset($name) && isset($userName) && isset($email) && isset($password) && !empty(trim($name)) && !empty(trim($userName)) && !empty(trim($email)) && !empty(trim($password)) && filter_var($email, FILTER_VALIDATE_EMAIL) && $password == $confirmPassword) {
+            // Generate a new ID
+            $id = count($users) + 1;
+            $user["id"] = $id;
+            $user["name"] = $name;
+            $user["userName"] = $userName;
+            $user["email"] = $email;
+            $user["password"] = $password;
+            // Add the user to the users.json file
+            $this->addToDataBase($user, "users.json");
+            // Set the class properties
+            $this->id = $id;
+            $this->name = $name;
+            $this->userName = $userName;
+            $this->email = $email;
+            $this->password = $password;
+            return true;
+        } else {
+            return false;
+        }
     }
 }
